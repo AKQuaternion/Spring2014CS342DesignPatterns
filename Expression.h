@@ -17,7 +17,7 @@ using std::make_shared;
 /*
  E : E + T | E – T | T
  T : T * P | T / P | P
- P : (E) | -P | [number]
+ P : (E) | -P | [number] | variable
  */
 #include <string>
 using std::string;
@@ -26,7 +26,7 @@ class Expression
 {
 public:
     virtual ~Expression() = default;
-    virtual double eval() const = 0;
+    virtual double eval(const map<string,double> &context) const = 0;
     virtual string print() const = 0;
 private:
 };
@@ -41,9 +41,9 @@ public:
     SumExpression(shared_ptr<Expression> e,shared_ptr<Term> t):_e(e),_t(t)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
-        return _e->eval() + _t->eval();
+        return _e->eval(context) + _t->eval(context);
     }
     
     virtual string print() const override
@@ -62,9 +62,9 @@ public:
     DifferenceExpression(shared_ptr<Expression> e,shared_ptr<Term> t):_e(e),_t(t)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
-        return _e->eval() - _t->eval();
+        return _e->eval(context) - _t->eval(context);
     }
     
     virtual string print() const override
@@ -87,9 +87,9 @@ public:
     ProdTerm(shared_ptr<Term> t,shared_ptr<Primary> p):_t(t),_p(p)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
-        return _t->eval() * _p->eval();
+        return _t->eval(context) * _p->eval(context);
     }
     virtual string print() const override
     {
@@ -107,9 +107,9 @@ public:
     DivTerm(shared_ptr<Term> t,shared_ptr<Primary> p):_t(t),_p(p)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
-        return _t->eval() * _p->eval();
+        return _t->eval(context) * _p->eval(context);
     }
     virtual string print() const override
     {
@@ -127,11 +127,17 @@ public:
     Number(double v):_val(v)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
         return _val;
     }
  
+    virtual double eval() const 
+    {
+        return _val;
+    }
+    
+
     virtual string print() const override
     {
         return std::to_string(_val);
@@ -147,9 +153,9 @@ public:
     ParenthesizedPrimary(shared_ptr<Expression> e):_e(e)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
-        return _e->eval();
+        return _e->eval(context);
     }
     
     virtual string print() const override
@@ -167,9 +173,9 @@ public:
     NegativePrimary(shared_ptr<Primary> p):_p(p)
     {}
     
-    virtual double eval() const override
+    virtual double eval(const map<string,double> &context) const override
     {
-        return -_p->eval();
+        return -_p->eval(context);
     }
     
     virtual string print() const override
@@ -179,6 +185,26 @@ public:
     
 private:
     shared_ptr<Primary> _p;
+};
+
+class Variable : public Primary
+{
+public:
+    Variable(string name):_name(name)
+    {}
+    
+    virtual double eval(const map<string,double> &context) const override
+    {
+        return context.at(_name);
+    }
+    
+    virtual string print() const override
+    {
+        return _name;
+    }
+    
+private:
+    string _name;
 };
 
 #endif /* defined(__CS371Spring2014DesignPatterns__Expression__) */
