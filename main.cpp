@@ -7,6 +7,8 @@
 //
 
 #include <iostream>
+using std::cin;
+
 #include <map>
 using std::map;
 
@@ -14,6 +16,8 @@ using std::map;
 #include "Expression.h"
 #include "Observer.h"
 #include "Decorator.h"
+#include "Command.h"
+#include "Handler.h"
 
 template<typename T, typename FB>
 void testCreature()
@@ -96,7 +100,7 @@ std::unique_ptr<T> make_unique( Args&& ...args )
     return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
 }
 
-int main(int argc, const char * argv[])
+void testDecorator()
 {
     unique_ptr<Armor> p = make_unique<Plate>();
     cout << p->name() << endl;
@@ -107,8 +111,57 @@ int main(int argc, const char * argv[])
     unique_ptr<Armor> rmp = make_unique<RustyDecorator>(std::move(mp));
     cout << rmp->name() << endl;
     
-    return 0;
+
 }
 
+void testCommand()
+{
+    Fan f;
+    Light l;
+    
+    Switched * tv = new SwitchedTV;
+    
+    tv->on();
+    
+    map<int,shared_ptr<Command>> remote;
+    
+    remote[0] = make_shared<HelloCommand>();
+    remote[1] = make_shared<ToggleSwitchCommand>(f);
+    remote[2] = make_shared<ToggleSwitchCommand>(l);
+    remote[3] =
+    make_shared<MacroCommand>(
+                    std::initializer_list<shared_ptr<Command>>{remote[0],remote[1],remote[2]});
+    remote[4] =
+    make_shared<MacroCommand>(
+                              std::initializer_list<shared_ptr<Command>>{remote[3],remote[0],remote[0]});
 
+    
+    // remote[5] = make_shared<AnyCommand>(&f.off());
+    
+    remote[5] = make_shared<AnyCommand>([](){cout << "Goodbye\n";});
+    
+    int choice;
+    cout << "Push a button: ";
+    while(cin >> choice)
+    {
+        remote.at(choice)->execute();
+        cout << "Push a button: ";
+    }
+}
+
+int main(int argc, const char * argv[])
+{
+    unique_ptr<Handler> fb = make_unique<FizzBuzz>();
+    unique_ptr<Handler> f = make_unique<Fizz>();
+    unique_ptr<Handler> b = make_unique<Buzz>();
+    unique_ptr<Handler> n = make_unique<FizzyNumber>();
+    
+    b->setNextHandler(move(n));
+    f->setNextHandler(move(b));
+    fb->setNextHandler(move(f));
+    
+    for(int ii=0;ii<50;++ii)
+        fb->printNumber(ii);
+    return 0;
+}
 
