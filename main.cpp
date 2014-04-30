@@ -12,12 +12,24 @@ using std::cin;
 #include <map>
 using std::map;
 
+template<typename T, typename ...Args>
+std::unique_ptr<T> make_unique( Args&& ...args )
+{
+    return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
+}
+
 #include "Creature.h"
 #include "Expression.h"
 #include "Observer.h"
 #include "Decorator.h"
 #include "Command.h"
 #include "Handler.h"
+#include "Composite.h"
+#include "Visitor.h"
+#include "TreeNode.h"
+#include "MP3Player.h"
+#include "DerivedMP3PlayerStates.h"
+
 
 template<typename T, typename FB>
 void testCreature()
@@ -94,12 +106,6 @@ void testObserver()
     t.temperatureHasChanged(300.2);
 }
 
-template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique( Args&& ...args )
-{
-    return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
-}
-
 void testDecorator()
 {
     unique_ptr<Armor> p = make_unique<Plate>();
@@ -149,7 +155,7 @@ void testCommand()
     }
 }
 
-int main(int argc, const char * argv[])
+void chainOfResponsibility()
 {
     unique_ptr<Handler> fb = make_unique<FizzBuzz>();
     unique_ptr<Handler> f = make_unique<Fizz>();
@@ -162,6 +168,59 @@ int main(int argc, const char * argv[])
     
     for(int ii=0;ii<50;++ii)
         fb->printNumber(ii);
-    return 0;
 }
 
+void visitor()
+{
+    
+    shared_ptr<File> spf1=make_shared<File>("File1",100);
+    shared_ptr<File> spf2=make_shared<File>("File2",50);
+    shared_ptr<File> spf3=make_shared<File>("File3",20);
+    shared_ptr<File> spf4=make_shared<File>("File4",10);
+    auto spfo1 = make_shared<Folder>("Folder1");
+    spfo1->add_item(spf1);
+    spfo1->add_item(spf2);
+    auto spfo2 = make_shared<Folder>("Folder2");
+    spfo2->add_item(spf3);
+    spfo2->add_item(spf4);
+    spfo1->add_item(spfo2);
+    
+    cout << "Folder 1 size " << spfo1->size() << endl;
+    cout << "Folder 2 size " << spfo2->size() << endl;
+    cout << "File 1 size " << spf1->size() << endl;
+    
+    Printer p;
+    spfo1->visit(&p);
+}
+
+void nullTree()
+{
+    Node *tree = new Node(1,
+                          new Node(2),
+                          new Node(3,
+                                   new Node(4)
+                                   )
+                          );
+    
+    cout << tree->size() << endl;
+    
+    delete tree;
+
+}
+
+void testMP3Player()
+{
+    MP3Player m(make_unique<StandByState>());
+    
+//    m.pushPlayButton();
+//    m.pushPlayButton();
+//    m.pushSourceButton();
+}
+
+int main(int argc, const char * argv[])
+{
+    nullTree();
+    testMP3Player();
+    
+    return 0;
+}
