@@ -10,7 +10,7 @@
 #include <iostream>
 using std::cout;
 
-MP3Player::MP3Player(unique_ptr<MP3PlayerState> &&state):_state(std::move(state))
+MP3Player::MP3Player(unique_ptr<MP3PlayerState> state):_state(std::move(state))
 {}
 
 void MP3Player::pushPlayButton()
@@ -23,7 +23,7 @@ void MP3Player::pushSourceButton()
     _state->pushSource(this);
 }
 
-void MP3Player::setState(unique_ptr<MP3PlayerState> &&s)
+void MP3Player::setState(unique_ptr<MP3PlayerState> s)
 {
     _state = std::move(s);
 }

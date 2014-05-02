@@ -212,9 +212,9 @@ void testMP3Player()
 {
     MP3Player m(make_unique<StandByState>());
     
-//    m.pushPlayButton();
-//    m.pushPlayButton();
-//    m.pushSourceButton();
+    m.pushPlayButton();
+    m.pushPlayButton();
+    m.pushSourceButton();
 }
 
 int main(int argc, const char * argv[])

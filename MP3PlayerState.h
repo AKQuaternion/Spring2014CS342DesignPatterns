@@ -19,8 +19,8 @@ class MP3PlayerState
 public:
     virtual ~MP3PlayerState()
     {}
-    virtual void pushPlay(MP3Player * _context)=0;
-    virtual void pushSource(MP3Player * _context)=0;
+    virtual void pushPlay(MP3Player * context)=0;
+    virtual void pushSource(MP3Player * context)=0;
 protected:
     void setState(MP3Player *player, unique_ptr<MP3PlayerState> &&s);    
     void changeRadioStation(MP3Player *player );

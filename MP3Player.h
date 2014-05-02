@@ -19,12 +19,12 @@ class MP3Player
     
 public:
 
-    MP3Player(unique_ptr<MP3PlayerState> &&state);
+    MP3Player(unique_ptr<MP3PlayerState> state);
     void pushPlayButton();
     void pushSourceButton();
 
 private:
-    void setState(unique_ptr<MP3PlayerState> &&);
+    void setState(unique_ptr<MP3PlayerState> );
     void changeRadioStation();
     void playMP3();
     void stopMP3();
